@@ -7,7 +7,7 @@ WHERE activity_type = 'Компьютерная'
 
 
 
--- Задание 2. Выбрать номера всех лабораторий, входящих в состав выпускающих кафедр.
+-- Задание 2. Создать таблицу с данными одного из предыдущих запросов. .
 
 SELECT l.laboratory_id 
 FROM laboratories l
@@ -16,21 +16,39 @@ WHERE d.is_graduating_department = TRUE;
 
 
 
--- Задание 3. Создать новую таблицу (selected_laboratories), содержащую данные 
+-- Задание 3. Добавить в таблицу какие-либо данные, используя инструкцию Insert Select 
 
 
 DROP TABLE IF EXISTS selected_laboratories;
 
-SELECT l.*, d.department_name, d.faculty_code, d.is_graduating_department
-INTO selected_laboratories
+CREATE TABLE selected_laboratories (
+    laboratory_id integer,
+    laboratory_name character varying(255),
+    activity_type character varying(255),
+    head_of_laboratory character varying(255),
+    workstations_count integer,
+    has_equipment boolean,
+    department_id integer,
+    department_name character varying(255),
+    faculty_code character varying(10),
+    is_graduating_department boolean
+);
+
+INSERT INTO selected_laboratories (
+    laboratory_id, laboratory_name, activity_type, head_of_laboratory, 
+    workstations_count, has_equipment, department_id, 
+    department_name, faculty_code, is_graduating_department
+)
+SELECT 
+    l.laboratory_id, l.laboratory_name, l.activity_type, l.head_of_laboratory, 
+    l.workstations_count, l.has_equipment, l.department_id, 
+    d.department_name, d.faculty_code, d.is_graduating_department
 FROM laboratories l
 JOIN departments d ON l.department_id = d.department_id
 WHERE l.activity_type = 'Компьютерная' 
   AND l.head_of_laboratory IS NULL;
 
-
-
--- Задание 4. Добавить в созданную таблицу все лаборатории кафедр, 
+-- Задание 4. Создать запрос на изменение инструкцией Update 
 
 
 INSERT INTO selected_laboratories (
@@ -59,16 +77,16 @@ WHERE has_equipment = TRUE;
 
 -- Задание 6. Из созданной таблицы удалить все записи для лабораторий, 
 
--- Шаг А
+
 ALTER TABLE selected_laboratories ADD COLUMN IF NOT EXISTS floor integer;
 
--- Шаг Б
 DELETE FROM selected_laboratories
 WHERE floor = 2;
 
 
 
--- Задание 7. Посчитать количество лабораторий и среднее количество оборудованных 
+-- Задание 7. Посчитать количество лабораторий и среднее количество оборудованных рабочих мест 
+в лабораториях на каждой кафедре.  
 
 SELECT department_id, 
        COUNT(*) AS laboratories_count, 
